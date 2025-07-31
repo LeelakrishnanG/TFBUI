@@ -1,0 +1,74 @@
+/* TFBValidator.css */
+
+div{
+  margin: 5px;
+  font-family: Arial, sans-serif;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+select,
+input[type="file"],
+button {
+  margin-top: 5px;
+  margin-bottom: 15px;
+  padding: 4px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.sendFiles {
+  border: 1px solid #f9e4e4;
+  padding: 5px;
+  margin-top: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.response-tab {
+  border: 1px solid #f9e4e4;
+  padding: 50px;
+  margin-top: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+button {
+  background-color: #ff009d;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+button:hover:enabled {
+  background-color: rgb(218, 0, 120);
+}
+
+button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 6px solid #e0e0e0;
+      border-top-color: #ff009d;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 50px auto;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
