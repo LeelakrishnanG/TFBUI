@@ -40,7 +40,7 @@ function TFBValidator() {
 
   const isSendEnabled = () => {
     if (isLoading) return false;
-    if (selected === 'none' || selected === '') return false;
+    if (selected === '') return false;
     if (!testFile || !dbFile) return false;
     if (showThirdFileInput && !coveredEntityFile) return false;
     return true;
@@ -124,41 +124,86 @@ function TFBValidator() {
         <div className="tfb-validator-container">
         <label htmlFor="toolselection">Choose the tool:</label>
         <select id="toolselection" value={selected} onChange={handleChange}>
-          <option value="none" disabled>-- Select --</option>
+          <option value="" disabled hidden>-- Select --</option>
           <option value="tpavalidation">TPA Validation</option>
           <option value="npivalidation">NPI Validation</option>
           <option value="ndcandselfadminvalidation">NDC / SA Validation</option>
         </select>
 
-        {selected && selected !== 'none' && (
+        {selected && selected !== '' && (
           <div className="sendFiles">
-            <label>Test File *</label>
-            <input
-              type="file"
-              accept=".xlsx"
-              ref={testFileRef}
-              onChange={(e) => setTestFile(validateXLSX(e.target.files[0]))}
-              required
-            />
-            <label>DB File *</label>
-            <input
-              type="file"
-              accept=".xlsx"
-              ref={dbFileRef}
-              onChange={(e) => setDbFile(validateXLSX(e.target.files[0]))}
-              required
-            />
-            {showThirdFileInput && (
-              <>
-                <label>Covered Entity File *</label>
+            <div className="file-input-container">
+              <label>Test File *</label>
+              <div className="custom-file-input">
+                <label htmlFor="testFile" className="file-input-label">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                  </svg>
+                  <span className="file-name">{testFile ? testFile.name : 'Choose file'}</span>
+                </label>
                 <input
+                  id="testFile"
                   type="file"
                   accept=".xlsx"
-                  ref={coveredEntityRef}
-                  onChange={(e) => setCoveredEntityFile(validateXLSX(e.target.files[0]))}
+                  ref={testFileRef}
+                  onChange={(e) => setTestFile(validateXLSX(e.target.files[0]))}
                   required
+                  className="hidden-file-input"
                 />
-              </>
+              </div>
+            </div>
+            
+            <div className="file-input-container">
+              <label>DB File *</label>
+              <div className="custom-file-input">
+                <label htmlFor="dbFile" className="file-input-label">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                  </svg>
+                  <span className="file-name">{dbFile ? dbFile.name : 'Choose file'}</span>
+                </label>
+                <input
+                  id="dbFile"
+                  type="file"
+                  accept=".xlsx"
+                  ref={dbFileRef}
+                  onChange={(e) => setDbFile(validateXLSX(e.target.files[0]))}
+                  required
+                  className="hidden-file-input"
+                />
+              </div>
+            </div>
+            
+            {showThirdFileInput && (
+              <div className="file-input-container">
+                <label>Covered Entity File *</label>
+                <div className="custom-file-input">
+                  <label htmlFor="coveredEntityFile" className="file-input-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="12" y1="18" x2="12" y2="12"></line>
+                      <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    <span className="file-name">{coveredEntityFile ? coveredEntityFile.name : 'Choose file'}</span>
+                  </label>
+                  <input
+                    id="coveredEntityFile"
+                    type="file"
+                    accept=".xlsx"
+                    ref={coveredEntityRef}
+                    onChange={(e) => setCoveredEntityFile(validateXLSX(e.target.files[0]))}
+                    required
+                    className="hidden-file-input"
+                  />
+                </div>
+              </div>
             )}
           </div>
         )}
