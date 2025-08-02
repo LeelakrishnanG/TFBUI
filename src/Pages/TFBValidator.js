@@ -9,7 +9,7 @@ function TFBValidator() {
   const [dbFile, setDbFile] = useState(null);
   const [coveredEntityFile, setCoveredEntityFile] = useState(null);
   const [uploadResult, setUploadResult] = useState('');
-  const [isSucces, setIsSuccess] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const testFileRef = useRef();
   const dbFileRef = useRef();
@@ -74,7 +74,7 @@ function TFBValidator() {
       const url = URL.createObjectURL(response.data);
       const link = document.createElement('a');
       link.href = url;
-      // Get filename from Content-Disposition header if available
+
       let filename = 'NDCResults.txt';
       const disposition = response.headers['content-disposition'];
       if (disposition && disposition.indexOf('filename=') !== -1) {
@@ -84,7 +84,6 @@ function TFBValidator() {
       document.body.appendChild(link);
       link.click(); 
 
-    //reset file inputs
       if (testFileRef.current) testFileRef.current.value = '';
       if (dbFileRef.current) dbFileRef.current.value = '';
       if (coveredEntityRef.current) coveredEntityRef.current.value = '';
@@ -103,7 +102,7 @@ function TFBValidator() {
 
   return (
     <>
-      <div>
+      <div className="tfb-validator-container">
         <label htmlFor="toolselection">Choose the tool:</label>
         <select id="toolselection" value={selected} onChange={handleChange}>
           <option value="none">-- Select --</option>
@@ -114,28 +113,31 @@ function TFBValidator() {
 
         {selected && selected !== 'none' && (
           <div className="sendFiles">
-            <label>Test File:</label>
+            <label>Test File *</label>
             <input
               type="file"
               accept=".xlsx"
               ref={testFileRef}
               onChange={(e) => setTestFile(validateXLSX(e.target.files[0]))}
+              required
             />
-            <label>DB File:</label>
+            <label>DB File *</label>
             <input
               type="file"
               accept=".xlsx"
               ref={dbFileRef}
               onChange={(e) => setDbFile(validateXLSX(e.target.files[0]))}
+              required
             />
             {showThirdFileInput && (
               <>
-                <label>Covered Entity File:</label>
+                <label>Covered Entity File *</label>
                 <input
                   type="file"
                   accept=".xlsx"
                   ref={coveredEntityRef}
                   onChange={(e) => setCoveredEntityFile(validateXLSX(e.target.files[0]))}
+                  required
                 />
               </>
             )}
@@ -144,13 +146,25 @@ function TFBValidator() {
 
         <br />
         <button disabled={!isSendEnabled()} onClick={handleSend}>
-          {isLoading ? 'Processing Request...' : 'Send'}
+          {isLoading ? (
+            <span>Processing Request...</span>
+          ) : (
+            <span>Send</span>
+          )}
         </button>
         <div className="working-area">
-            {isLoading && <div className="spinner"></div>}
-            {uploadResult && <p className="upload-status" 
-            style={{ color: isSucces ? 'green' : 'red', fontWeight: 'bold' }}
-            >{uploadResult}</p>}
+          {isLoading && <div className="spinner"></div>}
+          {uploadResult && (
+            <p
+              className={`upload-status${uploadResult === 'File upload failed!' ? ' shake' : ''}`}
+              style={{
+                color: isSuccess ? 'green' : 'red',
+                fontWeight: 'bold',
+              }}
+            >
+              {uploadResult}
+            </p>
+          )}
         </div>
       </div>
     </>
