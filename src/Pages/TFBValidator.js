@@ -10,6 +10,8 @@ function TFBValidator() {
   const [coveredEntityFile, setCoveredEntityFile] = useState(null);
   const [uploadResult, setUploadResult] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [downloadedFileContent, setDownloadedFileContent] = useState('');
+  const [downloadedFileName, setDownloadedFileName] = useState('');
 
   const testFileRef = useRef();
   const dbFileRef = useRef();
@@ -82,7 +84,15 @@ function TFBValidator() {
       }
       link.setAttribute('download', filename);
       document.body.appendChild(link);
-      link.click(); 
+      link.click();
+
+      // Also store the file content for display in the parallel container
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        setDownloadedFileContent(e.target.result);
+        setDownloadedFileName(filename);
+      };
+      reader.readAsText(response.data); 
 
       if (testFileRef.current) testFileRef.current.value = '';
       if (dbFileRef.current) dbFileRef.current.value = '';
@@ -100,12 +110,21 @@ function TFBValidator() {
     }
   };
 
+  const handleOpenFile = () => {
+    if (downloadedFileContent) {
+      const blob = new Blob([downloadedFileContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    }
+  };
+
   return (
     <>
-      <div className="tfb-validator-container">
+      <div className="containers-wrapper">
+        <div className="tfb-validator-container">
         <label htmlFor="toolselection">Choose the tool:</label>
         <select id="toolselection" value={selected} onChange={handleChange}>
-          <option value="none">-- Select --</option>
+          <option value="none" disabled>-- Select --</option>
           <option value="tpavalidation">TPA Validation</option>
           <option value="npivalidation">NPI Validation</option>
           <option value="ndcandselfadminvalidation">NDC / SA Validation</option>
@@ -164,6 +183,37 @@ function TFBValidator() {
             >
               {uploadResult}
             </p>
+          )}
+        </div>
+        </div>
+        
+        <div className="tfb-file-viewer-container">
+          <h3>File Viewer</h3>
+          {downloadedFileName && (
+            <div className="file-info">
+              <p><strong>File:</strong> {downloadedFileName}</p>
+              <button className="open-file-btn" onClick={handleOpenFile}>
+                Open File in New Tab
+              </button>
+            </div>
+          )}
+          
+          {downloadedFileContent && (
+            <div className="file-content-display">
+              <label>File Content Preview:</label>
+              <textarea 
+                className="file-content-textarea"
+                value={downloadedFileContent}
+                readOnly
+                rows={15}
+              />
+            </div>
+          )}
+          
+          {!downloadedFileContent && (
+            <div className="no-file-message">
+              <p>No file downloaded yet. Upload and process files to see content here.</p>
+            </div>
           )}
         </div>
       </div>
