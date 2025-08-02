@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import '../CSS/tfbvalidatorCSS.css';
-import axios from 'axios';
+import { uploadFilesForValidation, downloadFile, readFileContent } from '../Scripts/apiService';
 
 function TFBValidator() {
   const [isLoading, setIsLoading] = useState(false);
@@ -49,61 +49,47 @@ function TFBValidator() {
   const handleSend = async () => {
     if (!isSendEnabled()) return;
 
-    const formData = new FormData();
-    formData.append('testFile', testFile);
-    formData.append('dbFile', dbFile);
-    if (showThirdFileInput && coveredEntityFile) {
-      formData.append('coveredEntityFile', coveredEntityFile);
-    }
-
-    const endpointMap = {
-      tpavalidation: 'http://localhost:8080/api/tpa/TPAvalidation',
-      npivalidation: 'http://localhost:8080/api/npi/NPIvalidation',
-      ndcandselfadminvalidation: 'http://localhost:8080/api/ndc/NDCvalidation',
-    };
-
-    const endpoint = endpointMap[selected];
-
     try {
       setIsLoading(true);
       setUploadResult('');
-      const response = await axios.post(endpoint, formData, {
-        responseType: 'blob'
-      });
-      setIsSuccess(true);
-      setUploadResult('File sent successfully!');
-      console.log('Response:', response.data);
-      const url = URL.createObjectURL(response.data);
-      const link = document.createElement('a');
-      link.href = url;
+      
+      // Call the API service
+      const result = await uploadFilesForValidation(
+        selected,
+        testFile,
+        dbFile,
+        showThirdFileInput ? coveredEntityFile : null
+      );
 
-      let filename = 'NDCResults.txt';
-      const disposition = response.headers['content-disposition'];
-      if (disposition && disposition.indexOf('filename=') !== -1) {
-        filename = disposition.split('filename=')[1].replace(/"/g, '').trim();
+      if (result.success) {
+        setIsSuccess(true);
+        setUploadResult('File sent successfully!');
+        console.log('Response:', result.data);
+        
+        // Download the file
+        downloadFile(result.data, result.filename);
+        
+        // Read and store file content for display in the parallel container
+        const fileContent = await readFileContent(result.data);
+        setDownloadedFileContent(fileContent);
+        setDownloadedFileName(result.filename);
+        
+        // Clear the form
+        if (testFileRef.current) testFileRef.current.value = '';
+        if (dbFileRef.current) dbFileRef.current.value = '';
+        if (coveredEntityRef.current) coveredEntityRef.current.value = '';
+        setTestFile(null);
+        setDbFile(null);
+        setCoveredEntityFile(null);
+        
+      } else {
+        setUploadResult(result.error);
+        setIsSuccess(false);
       }
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-
-      // Also store the file content for display in the parallel container
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        setDownloadedFileContent(e.target.result);
-        setDownloadedFileName(filename);
-      };
-      reader.readAsText(response.data); 
-
-      if (testFileRef.current) testFileRef.current.value = '';
-      if (dbFileRef.current) dbFileRef.current.value = '';
-      if (coveredEntityRef.current) coveredEntityRef.current.value = '';
-      setTestFile(null);
-      setDbFile(null);  
-      setCoveredEntityFile(null);
-
+      
     } catch (error) {
-      console.error('Error uploading file:', error);
-      setUploadResult('File upload failed!');
+      console.error('Unexpected error:', error);
+      setUploadResult('An unexpected error occurred!');
       setIsSuccess(false);
     } finally {
       setIsLoading(false);
